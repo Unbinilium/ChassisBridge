@@ -1,0 +1,11 @@
+float64 receive_timestamp
+float64 measure_timestamp
+float32 move_velocity_x
+float32 move_velocity_y
+float32 rotate_velocity_z
+float32 move_acceleration_x
+float32 move_acceleration_y
+float32 rotate_acceleration_z
+uint32  previous_action_id
+float32 distance_moved_since_prev_action
+float32 angle_rotated_since_prev_action

@@ -1,0 +1,9 @@
+float32 rotate_angle_z
+float32 target_rotate_volocity_z
+float32 target_rotate_acceleration_z
+float32 target_move_volocity_x
+float32 target_move_acceleration_x
+float32 target_move_volocity_y
+float32 target_move_acceleration_y
+---
+uint32  action_id
