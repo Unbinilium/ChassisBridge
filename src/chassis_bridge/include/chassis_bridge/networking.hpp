@@ -50,9 +50,8 @@ namespace cb::networking {
                 static auto start{std::chrono::system_clock::now()};
                 auto end{std::chrono::system_clock::now()};
                 using namespace std::chrono_literals;
-                if (end - start > 10ms) {
-                    do_write_heartbeat();
-                }
+                std::this_thread::sleep_for(100ms - (end - start));
+                do_write_heartbeat();
             }
 
         private:
