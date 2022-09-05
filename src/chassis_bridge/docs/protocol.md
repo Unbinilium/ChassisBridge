@@ -76,3 +76,20 @@ Binary format, totally 20 bytes.
         - x - move distance on x axis, unit m
         - y - move distance on y axis, unit m
         - z - rotate angle on z axis, unit rad
+
+
+## Heartbeat Protocol
+
+### Frame
+
+```
+Little Endian -> | 1 byte header |
+```
+
+### Types
+
+- header `char`
+
+### Detailes
+
+- header - single char `H`

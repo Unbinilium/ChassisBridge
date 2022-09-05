@@ -8,9 +8,7 @@
 namespace cb::types {
     namespace underlying {
 #   pragma pack(push, 1)
-        struct head {
-            char flag;
-        };
+        using head = char;
 
         struct axis_tuple {
             float x;
@@ -28,6 +26,11 @@ namespace cb::types {
                 float        measure_timestamp;
                 volocity     chassis_volocity;
                 acceleration chassis_acceleration;
+            };
+
+            struct frame {
+                const head header = cb::protocol::header::receive;
+                body       data;
             };
         };
 
@@ -48,6 +51,10 @@ namespace cb::types {
             struct frame {
                 const head header = cb::protocol::header::transmit;
                 body<T>    data;
+            };
+
+            struct heartbeat {
+                const head header = cb::protocol::header::heartbeat;
             };
         };
 #   pragma pack(pop)
