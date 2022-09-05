@@ -1,5 +1,10 @@
 {
     "python.autoComplete.extraPaths": [
         "/opt/ros/galactic/lib/python3.8/site-packages"
-    ]
+    ],
+    "files.associations": {
+        "*.idl": "cpp"
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/build/chassis_interfaces/chassis_interfaces__py",
+    "files.autoSave": "onFocusChange"
 }
