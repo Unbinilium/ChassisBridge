@@ -18,7 +18,7 @@ set(msg_files
 set(srv_files
   "srv/AccelerationControl.srv"
   "srv/VolocityControl.srv"
-  "srv/ChassisControl.srv"
+  "srv/DiffusionControl.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
