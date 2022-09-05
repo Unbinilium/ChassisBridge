@@ -169,10 +169,10 @@ namespace cb::networking {
                 acceptor_.async_accept(socket_, [this](std::error_code ec) {
                     if (ec) [[unlikely]] {
                         std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                                  << "[tcp server] acceept connection failed: " << ec.message() << std::endl;
+                                  << "[tcp server] accept connection failed: " << ec.message() << std::endl;
                     } else {
                         std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                                  << "[tcp server] acceept connection success from: " << socket_.remote_endpoint() << std::endl;
+                                  << "[tcp server] accept connection success from: " << socket_.remote_endpoint() << std::endl;
                         std::make_shared<T>(std::move(socket_), read_deque_ptr_, write_deque_ptr_)->start();
                     }
                     on_accepting_finished();
