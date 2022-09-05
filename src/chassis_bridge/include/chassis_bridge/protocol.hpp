@@ -2,13 +2,13 @@
 
 namespace cb::protocol {
     enum header : char {
-        receive,
-        transmit
+        receive  = 'S',
+        transmit = 'T'
     };
 
     enum action_types : char {
-        volocity,
-        acceleration,
-        diffusion
+        volocity     = 'V',
+        acceleration = 'A',
+        diffusion    = 'D'
     };
 };
