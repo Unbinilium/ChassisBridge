@@ -18,7 +18,6 @@ namespace cb::networking {
             using tx_deque_item = std::unique_ptr<cb::types::underlying::tx::frame>;
         public:
             session(asio::ip::tcp::socket                    socket,
-                    std::size_t                              buffer_size,
                     cb::container::ts::deque<rx_deque_item>* receive_deque_ptr,
                     cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr
             ) : socket_(std::move(socket)),
@@ -27,6 +26,7 @@ namespace cb::networking {
                     std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                               << "[tcp session] client connected from: " << socket_.remote_endpoint() << std::endl;
             }
+            ~session() = default;
 
             void start() {
                 do_write();
@@ -133,11 +133,51 @@ namespace cb::networking {
                 });
             }
 
-            asio::ip::tcp::socket socket_;
-
+            asio::ip::tcp::socket                    socket_;
             cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
             cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr_;
         };
 
+
+        template <typename T = session>
+        class server {
+            using rx_deque_item = std::unique_ptr<cb::types::underlying::rx::frame>;
+            using tx_deque_item = std::unique_ptr<cb::types::underlying::tx::frame>;
+        public:
+            server(asio::io_context&                        io_context,
+                   uint16_t                                 port,
+                   cb::container::ts::deque<rx_deque_item>* receive_deque_ptr,
+                   cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr
+            ) : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
+                socket_(io_context),
+                receive_deque_ptr_(receive_deque_ptr),
+                transmit_deque_ptr_(transmit_deque_ptr)  {
+                do_accept();
+            }
+            ~server = default;
+
+        protected:
+            virtual void on_accepting_finished() {
+                std::this_thread::yield();
+                do_accept();
+            }
+
+        private:
+            void do_accept() {
+                acceptor_.async_accept(socket_, [this](std::error_code ec) {
+                    if (!ec) {
+                        std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                                  << "[tcp server] accepted connection from: " << socket_.remote_endpoint() << std::endl;
+                        std::make_shared<T>(std::move(socket_), read_deque_ptr_, write_deque_ptr_)->start();
+                    }
+                    on_accepting_finished();
+                });
+            }
+
+            asio::ip::tcp::acceptor                  acceptor_;
+            asio::ip::tcp::socket                    socket_;
+            cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
+            cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr_;
+        };
     };
 };
