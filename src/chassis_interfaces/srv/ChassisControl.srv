@@ -1,5 +1,5 @@
-float32 rotate_angle_z
 float32 move_distance_x
 float32 move_distance_y
+float32 rotate_angle_z
 ---
-uint32  action_id
+uint16  action_id

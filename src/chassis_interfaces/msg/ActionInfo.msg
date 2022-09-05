@@ -1,6 +1,6 @@
-float64 receive_timestamp
-float64 measure_timestamp
-uint32  current_action_id
+float32 receive_timestamp
+float32 measure_timestamp
+uint16  current_action_id
 float32 distance_moved_since_prev_action_x
 float32 distance_moved_since_prev_action_y
 float32 angle_rotated_since_prev_action_z

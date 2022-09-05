@@ -2,4 +2,4 @@ float32 target_move_volocity_x
 float32 target_move_volocity_y
 float32 target_rotate_volocity_z
 ---
-uint32  action_id
+uint16  action_id
