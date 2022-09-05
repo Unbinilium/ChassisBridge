@@ -6,6 +6,8 @@
 Little Endian -> | 1 byte header | 2 byte action_id | 4 byte timestamp | 12 byte volocity | 12 byte acceleration |
 ```
 
+Binary format, totally 31 bytes.
+
 ### Types
 
 - header `char`
@@ -37,9 +39,13 @@ Little Endian -> | 1 byte header | 2 byte action_id | 4 byte timestamp | 12 byte
 
 ## Transmit Protocol
 
+### Frame
+
 ```
 Little Endian -> | 1 byte header | 2 byte action_id | 4 byte timestamp | 1 byte action_type | 12 byte tuple |
 ```
+
+Binary format, totally 20 bytes.
 
 ### Types
 
