@@ -1,0 +1,3 @@
+float32 move_velocity_x
+float32 move_velocity_y
+float32 rotate_velocity_z

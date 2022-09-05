@@ -8,9 +8,22 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME}
+set(msg_files
+  "msg/AccelerationInfo.msg"
+  "msg/VelocityInfo.msg"
+  "msg/ActionInfo.msg"
   "msg/ChassisInfo.msg"
+)
+
+set(srv_files
+  "srv/AccelerationControl.srv"
+  "srv/VolocityControl.srv"
   "srv/ChassisControl.srv"
+)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${msg_files}
+  ${srv_files}
 )
 
 if(BUILD_TESTING)

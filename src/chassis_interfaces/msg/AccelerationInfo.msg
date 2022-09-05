@@ -1,0 +1,3 @@
+float32 move_acceleration_x
+float32 move_acceleration_y
+float32 rotate_acceleration_z

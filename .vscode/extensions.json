@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "ms-vscode.cpptools",
+        "twxs.cmake",
+        "ms-vscode.cmake-tools",
+        "github.github-vscode-theme",
+        "ms-vscode.hexeditor",
+        "visualstudioexptteam.vscodeintellicode",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "ms-iot.vscode-ros"
+    ]
+}
