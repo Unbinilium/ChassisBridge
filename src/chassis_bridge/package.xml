@@ -5,7 +5,7 @@
   <version>0.0.1</version>
   <description>Chassis Bridge (TCP)</description>
   <maintainer email="contact@unbinilium.me">Unbinilium</maintainer>
-  <license>MIT/license>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
