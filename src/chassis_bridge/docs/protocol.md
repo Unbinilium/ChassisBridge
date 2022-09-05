@@ -86,6 +86,8 @@ Binary format, totally 20 bytes.
 Little Endian -> | 1 byte header |
 ```
 
+Binary format, totally 1 byte.
+
 ### Types
 
 - header `char`
