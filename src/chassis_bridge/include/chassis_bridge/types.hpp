@@ -2,13 +2,13 @@
 
 #include <cstdint>
 
-#include "chassis_interface/msg/velocity_info.hpp"
-#include "chassis_interface/msg/acceleration_info.hpp"
-#include "chassis_interface/msg/chassis_info.hpp"
-#include "chassis_interface/msg/action_info.hpp"
-#include "chassis_interface/srv/volocity_control.hpp"
-#include "chassis_interface/srv/acceleration_control.hpp"
-#include "chassis_interface/srv/diffusion_control.hpp"
+#include "chassis_interfaces/msg/velocity_info.hpp"
+#include "chassis_interfaces/msg/acceleration_info.hpp"
+#include "chassis_interfaces/msg/chassis_info.hpp"
+#include "chassis_interfaces/msg/action_info.hpp"
+#include "chassis_interfaces/srv/volocity_control.hpp"
+#include "chassis_interfaces/srv/acceleration_control.hpp"
+#include "chassis_interfaces/srv/diffusion_control.hpp"
 
 #include "chassis_bridge/protocol.hpp"
 

@@ -8,7 +8,7 @@
             "includePath": [
                 "/opt/ros/galactic/include/**",
                 "${workspaceFolder}/src/chassis_bridge/include/**",
-                "${workspaceFolder}/build/chassis_interfaces/rosidl_generator_cpp/**",
+                "${workspaceFolder}/install/chassis_interfaces/include/**",
                 "/usr/include/**"
             ],
             "name": "ROS",
