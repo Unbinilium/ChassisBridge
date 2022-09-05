@@ -14,6 +14,12 @@ namespace cb::container {
             deque()  = default;
             ~deque() = default;
 
+            void push_back(const T&& data) {
+                std::unique_lock lock(mutex_);
+                data_.push_back(std::forward<T>(data));
+                cv_.notify_one();
+            }
+
             void push_back(T&& data) {
                 std::unique_lock lock(mutex_);
                 data_.push_back(std::forward<T>(data));

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <type_traits>
 
 #include "chassis_bridge/protocol.hpp"
 
@@ -21,7 +20,7 @@ namespace cb::types {
         using diffusion    = axis_tuple;
 
         namespace rx {
-            struct body {
+            struct data {
                 uint16_t     current_action_id;
                 float        measure_timestamp;
                 volocity     chassis_volocity;
@@ -30,27 +29,21 @@ namespace cb::types {
 
             struct frame {
                 const head header = cb::protocol::header::receive;
-                body       data;
+                data       body;
             };
         };
 
         namespace tx {
-            template <typename Axis_Tuple>
-            struct body {
+            struct data {
                 uint16_t   action_id;
                 float      action_timestamp;
-                const char action_type = [&] {
-                    if      constexpr (std::is_same_v<Axis_Tuple, volocity>)     return cb::protocol::action_types::volocity;
-                    else if constexpr (std::is_same_v<Axis_Tuple, acceleration>) return cb::protocol::action_types::acceleration;
-                    else if constexpr (std::is_same_v<Axis_Tuple, diffusion>)    return cb::protocol::action_types::diffusion;
-                };
-                Axis_Tuple tuple;
+                char       action_type;
+                axis_tuple tuple;
             };
 
-            template <typename T>
             struct frame {
                 const head header = cb::protocol::header::transmit;
-                body<T>    data;
+                data       body;
             };
 
             struct heartbeat {
