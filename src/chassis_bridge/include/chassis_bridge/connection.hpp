@@ -30,8 +30,8 @@ namespace cb::connection {
             ~session() = default;
 
             void start() {
-                do_write();
                 do_read();
+                do_write();
                 do_write_heartbeat();
             }
 
@@ -52,6 +52,7 @@ namespace cb::connection {
                 auto end{std::chrono::system_clock::now()};
                 using namespace std::chrono_literals;
                 std::this_thread::sleep_for(100ms - (end - start));
+                start = end;
                 do_write_heartbeat();
             }
 
