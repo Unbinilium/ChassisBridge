@@ -42,6 +42,11 @@ namespace cb::nodes {
             service_thread_.detach();
         }
 
+        void spin() {
+            publisher_thread_.join();
+            service_thread_.join();
+        }
+
     protected:
         virtual void on_publisher_initialize() {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
