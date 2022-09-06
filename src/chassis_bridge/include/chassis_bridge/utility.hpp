@@ -36,7 +36,7 @@ namespace cb::utility {
 
     template <typename RequestType>
     constexpr auto request_to_tuple(const RequestType& request) {
-        auto tuple{cb::types::underlying::axis_tuple};
+        auto tuple{cb::types::underlying::axis_tuple()};
         if constexpr (std::is_same_v<RequestType, std::shared_ptr<chassis_interfaces::srv::VolocityControl::Request>>) {
             tuple.x = request->target_move_volocity_x;
             tuple.y = request->target_move_volocity_y;
