@@ -33,6 +33,7 @@ namespace cb::types {
                 int32_t      measure_timestamp;
                 volocity     chassis_volocity;
                 acceleration chassis_acceleration;
+                diffusion    chassis_diffusion;
             };
 
             struct frame {
