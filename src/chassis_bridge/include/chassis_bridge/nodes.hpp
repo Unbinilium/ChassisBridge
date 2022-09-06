@@ -44,11 +44,15 @@ namespace cb::nodes {
     protected:
         virtual void on_publisher_initialize() {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                      << "[bridge node] initializing publisher and publisher thread" << std::endl;
+                      << "[bridge node] creating publishers" << std::endl;
             publisher_helper_.volocity     = create_publisher<chassis_interfaces::msg::VelocityInfo>("volocity", 10);
             publisher_helper_.acceleration = create_publisher<chassis_interfaces::msg::AccelerationInfo>("acceleration", 10);
             publisher_helper_.action       = create_publisher<chassis_interfaces::msg::ActionInfo>("action", 10);   
-            publisher_thread_ = std::thread([this] { publisher_callback(); });
+            publisher_thread_ = std::thread([this] {
+                std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                          << "[publisher] spawned publisher thread: " << std::this_thread::get_id() << std::endl;
+                publisher_callback();
+            });
         }
 
         virtual void publisher_callback() {
@@ -75,7 +79,8 @@ namespace cb::nodes {
 
         virtual void on_service_initialize() {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                      << "[bridge node] initializing service callbacks" << std::endl;
+                      << "[bridge node] registering service callbacks" << std::endl;
+
         }
 
         cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
