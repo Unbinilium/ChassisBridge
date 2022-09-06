@@ -5,8 +5,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+add_compile_options(-fconcepts)
+
 if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 11)
+  set(CMAKE_C_STANDARD 17)
 endif()
 
 if(NOT CMAKE_CXX_STANDARD)
