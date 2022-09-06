@@ -33,7 +33,7 @@ namespace cb::nodes {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                       << " [bridge node] initializing bridge node: " << node_name << std::endl;
             on_publisher_initialize();
-            on_service_initialize(); 
+            on_service_initialize();
         }
 
         ~bridge() {
@@ -98,13 +98,12 @@ namespace cb::nodes {
                 &bridge::service_callback<chassis_interfaces::srv::DiffusionControl::Request, chassis_interfaces::srv::DiffusionControl::Response>,
                 this, std::placeholders::_1, std::placeholders::_2
             ));
-            auto self(shared_from_this());
-            service_thread_ = std::thread([this, self] {
+            service_thread_ = std::thread([self = this] {
                 std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                           << " [service] spawned service thread: " << std::this_thread::get_id() << std::endl;
                 std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                           << " [service] service thread spin and wait for requests" << std::endl;
-                rclcpp::spin(self);
+                rclcpp::spin(SharedPtr(self));
             });
         }
 

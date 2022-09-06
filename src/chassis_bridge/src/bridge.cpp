@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
               << " [bridge main thread] launching bridge node from thread: " << std::this_thread::get_id() << std::endl;
-    auto bridge_node_handler_ptr{std::make_shared<cb::nodes::bridge>("chassis_bridge", &receive_deque, &transmit_deque)};
+    auto bridge_node_handler_ptr{std::make_shared<cb::nodes::bridge>("bridge", &receive_deque, &transmit_deque)};
 
     connection_server_thread.join();
     bridge_node_handler_ptr->threads_join();
