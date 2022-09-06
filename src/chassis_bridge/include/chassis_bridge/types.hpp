@@ -30,7 +30,7 @@ namespace cb::types {
         namespace rx {
             struct data {
                 uint16_t     current_action_id;
-                float        measure_timestamp;
+                int32_t      measure_timestamp;
                 volocity     chassis_volocity;
                 acceleration chassis_acceleration;
             };
@@ -44,7 +44,7 @@ namespace cb::types {
         namespace tx {
             struct data {
                 uint16_t   action_id;
-                float      action_timestamp;
+                int32_t    action_timestamp;
                 char       action_type;
                 axis_tuple tuple;
             };
