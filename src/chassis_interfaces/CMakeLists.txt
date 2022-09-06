@@ -12,7 +12,6 @@ set(msg_files
   "msg/VelocityInfo.msg"
   "msg/AccelerationInfo.msg"
   "msg/ActionInfo.msg"
-  "msg/ChassisInfo.msg"
 )
 
 set(srv_files

@@ -4,7 +4,6 @@
 
 #include "chassis_interfaces/msg/velocity_info.hpp"
 #include "chassis_interfaces/msg/acceleration_info.hpp"
-#include "chassis_interfaces/msg/chassis_info.hpp"
 #include "chassis_interfaces/msg/action_info.hpp"
 #include "chassis_interfaces/srv/volocity_control.hpp"
 #include "chassis_interfaces/srv/acceleration_control.hpp"
@@ -70,7 +69,6 @@ namespace cb::types {
             rclcpp::Publisher<chassis_interfaces::msg::VelocityInfo>::SharedPtr     volocity;
             rclcpp::Publisher<chassis_interfaces::msg::AccelerationInfo>::SharedPtr acceleration;
             rclcpp::Publisher<chassis_interfaces::msg::ActionInfo>::SharedPtr       action;
-            rclcpp::Publisher<chassis_interfaces::msg::ChassisInfo>::SharedPtr      chassis;
         };
 
         struct service {
