@@ -11,7 +11,7 @@
 #include "chassis_bridge/types.hpp"
 #include "chassis_bridge/container.hpp"
 
-namespace cb::networking {
+namespace cb::connection {
     namespace tcp {
         class session : public std::enable_shared_from_this<session> {
             using rx_deque_item = std::unique_ptr<cb::types::underlying::rx::frame>;
@@ -23,7 +23,7 @@ namespace cb::networking {
             ) : socket_(std::move(socket)),
                 receive_deque_ptr_(receive_deque_ptr),
                 transmit_deque_ptr_(transmit_deque_ptr) {
-                    std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                    std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                               << "[tcp session] client connected from: " << socket_.remote_endpoint() << std::endl;
             }
             ~session() = default;
@@ -64,29 +64,29 @@ namespace cb::networking {
                     [this, self, header = std::move(header)](std::error_code ec, std::size_t byte) {
                         auto rx_frame{std::make_unique<cb::types::underlying::rx::frame>()};
                         if (ec) [[unlikely]] {
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] read " << byte << " byte header failed: " << ec.message() << std::endl;
                             socket_.close();
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
                             return;
                         }
                         if (*header == rx_frame->header) {
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] read " << byte << " byte header: '" << *header << "'" << std::endl;
                             on_reading_header(socket_);
                             socket_.async_read_some(
                                 asio::buffer(reinterpret_cast<void*>(&rx_frame->body), sizeof(cb::types::underlying::rx::data)),
                                 [this, self, rx_frame = std::move(rx_frame)](std::error_code ec, std::size_t byte) {
                                     if (ec) [[unlikely]] {
-                                        std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                                        std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                                   << "[tcp session] read " << byte << " byte header failed: "  << ec.message() << std::endl;
                                         socket_.close();
-                                        std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                                        std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                                   << "[tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
                                         return;
                                     }
-                                    std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                                    std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                               << "[tcp session] read " << byte << " byte body"  << std::endl;
                                     on_reading_body(socket_);
                                     receive_deque_ptr_->push_back(std::move(rx_frame));
@@ -100,17 +100,17 @@ namespace cb::networking {
                 if (transmit_deque_ptr_->empty()) on_writing_finished(socket_);
                 auto self(shared_from_this());
                 asio::async_write(socket_,
-                    asio::buffer(reinterpret_cast<void*>(transmit_deque_ptr_->front().get()), sizeof(cb::types::underlying::tx::frame)), 
+                    asio::buffer(reinterpret_cast<void*>(transmit_deque_ptr_->front().get()), sizeof(cb::types::underlying::tx::frame)),
                     [this, self](std::error_code ec, std::size_t byte) {
                         if (ec) [[unlikely]] {
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] write " << byte << " byte frame failed: "  << ec.message() << std::endl;
                             socket_.close();
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
                             return;
                         }
-                        std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                        std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                   << "[tcp session] write " << byte << " byte frame"  << std::endl;
                         transmit_deque_ptr_->pop_front();
                         on_writing_finished(socket_);
@@ -121,13 +121,13 @@ namespace cb::networking {
                 auto self(shared_from_this());
                 static auto heartbeat{cb::types::underlying::tx::heartbeat()};
                 asio::async_write(socket_,
-                    asio::buffer(reinterpret_cast<void*>(&heartbeat), sizeof(cb::types::underlying::tx::heartbeat)), 
+                    asio::buffer(reinterpret_cast<void*>(&heartbeat), sizeof(cb::types::underlying::tx::heartbeat)),
                     [this, self](std::error_code ec, std::size_t byte) {
                         if (ec) [[unlikely]] {
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] write " << byte << " byte heartbeat failed: "  << ec.message() << std::endl;
                             socket_.close();
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
                             return;
                         }
@@ -168,10 +168,10 @@ namespace cb::networking {
             void do_accept() {
                 acceptor_.async_accept(socket_, [this](std::error_code ec) {
                     if (ec) [[unlikely]] {
-                        std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                        std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                   << "[tcp server] accept connection failed: " << ec.message() << std::endl;
                     } else {
-                        std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                        std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                   << "[tcp server] accept connection success from: " << socket_.remote_endpoint() << std::endl;
                         std::make_shared<T>(std::move(socket_), read_deque_ptr_, write_deque_ptr_)->start();
                     }
