@@ -17,16 +17,16 @@ namespace cb::utility {
         );
     }
 
-    template <typename TupleType>
-    constexpr auto tuple_cast_msg(const TupleType& tuple) {
-        if constexpr (std::is_same_v<TupleType, cb::types::underlying::volocity>) {
-            auto volocity{chassis_interfaces::msg::VelocityInfo()};
+    template <typename MsgType>
+    constexpr auto msg_from_tuple(const auto& tuple) {
+        if constexpr (std::is_same_v<MsgType, chassis_interfaces::msg::VelocityInfo>) {
+            auto volocity{MsgType()};
             volocity.move_velocity_x   = tuple.x;
             volocity.move_velocity_y   = tuple.y;
             volocity.rotate_velocity_z = tuple.z;
             return volocity;
-        } else if constexpr (std::is_same_v<TupleType, cb::types::underlying::acceleration>) {
-            auto acceleration{chassis_interfaces::msg::AccelerationInfo()};
+        } else if constexpr (std::is_same_v<MsgType, chassis_interfaces::msg::AccelerationInfo>) {
+            auto acceleration{MsgType()};
             acceleration.move_acceleration_x   = tuple.x;
             acceleration.move_acceleration_y   = tuple.y;
             acceleration.rotate_acceleration_z = tuple.z;
