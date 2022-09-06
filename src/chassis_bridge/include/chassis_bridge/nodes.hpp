@@ -31,7 +31,7 @@ namespace cb::nodes {
             service_helper_({}),
             action_id_(1) {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                      << "[bridge node] initializing bridge node: " << node_name << std::endl;
+                      << " [bridge node] initializing bridge node: " << node_name << std::endl;
             on_publisher_initialize();
             on_service_initialize(); 
         }
@@ -50,13 +50,13 @@ namespace cb::nodes {
     protected:
         virtual void on_publisher_initialize() {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                      << "[bridge node] creating publishers" << std::endl;
+                      << " [bridge node] creating publishers" << std::endl;
             publisher_helper_.volocity     = create_publisher<chassis_interfaces::msg::VelocityInfo>("volocity_info", 10);
             publisher_helper_.acceleration = create_publisher<chassis_interfaces::msg::AccelerationInfo>("acceleration_info", 10);
             publisher_helper_.action       = create_publisher<chassis_interfaces::msg::ActionInfo>("action_info", 10);   
             publisher_thread_ = std::thread([this] {
                 std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                          << "[publisher] spawned publisher thread: " << std::this_thread::get_id() << std::endl;
+                          << " [publisher] spawned publisher thread: " << std::this_thread::get_id() << std::endl;
                 publisher_callback();
             });
         }
@@ -85,7 +85,7 @@ namespace cb::nodes {
 
         virtual void on_service_initialize() {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                      << "[bridge node] registering service callbacks and set action id to: " << action_id_.load() << std::endl;
+                      << " [bridge node] registering service callbacks and set action id to: " << action_id_.load() << std::endl;
             service_helper_.volocity = create_service<chassis_interfaces::srv::VolocityControl>("volocity_control", std::bind(
                 &bridge::service_callback<chassis_interfaces::srv::VolocityControl::Request, chassis_interfaces::srv::VolocityControl::Response>,
                 this, std::placeholders::_1, std::placeholders::_2
@@ -101,9 +101,9 @@ namespace cb::nodes {
             auto self(shared_from_this());
             service_thread_ = std::thread([this, self] {
                 std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                          << "[service] spawned service thread: " << std::this_thread::get_id() << std::endl;
+                          << " [service] spawned service thread: " << std::this_thread::get_id() << std::endl;
                 std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                          << "[service] service thread spin and wait for requests" << std::endl;
+                          << " [service] service thread spin and wait for requests" << std::endl;
                 rclcpp::spin(self);
             });
         }

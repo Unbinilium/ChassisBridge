@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     cb::container::ts::deque<tx_deque_item> transmit_deque;
 
     std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-              << "[bridge main thread] spawning connection server thread from thread: " << std::this_thread::get_id() << std::endl;
+              << " [bridge main thread] spawning connection server thread from thread: " << std::this_thread::get_id() << std::endl;
     auto connection_server_thread{std::thread([&] {
         connection_server_start: try {
             asio::io_context io_context;
@@ -34,13 +34,13 @@ int main(int argc, char* argv[]) {
             io_context.run();
         } catch (std::exception& e) {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-                      << "[connection server thread] restarting connection server with exception: " << e.what() << std::endl;
+                      << " [connection server thread] restarting connection server with exception: " << e.what() << std::endl;
             goto connection_server_start;
         }
     })};
 
     std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
-              << "[bridge main thread] launching bridge node from thread: " << std::this_thread::get_id() << std::endl;
+              << " [bridge main thread] launching bridge node from thread: " << std::this_thread::get_id() << std::endl;
     auto bridge_node_handler_ptr{std::make_shared<cb::nodes::bridge>("chassis_bridge", &receive_deque, &transmit_deque)};
 
     connection_server_thread.join();
