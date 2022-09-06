@@ -83,7 +83,7 @@ namespace cb::nodes {
                       << "[bridge node] registering service callbacks and set action id to: " << action_id.load() << std::endl;
             static auto callback{[&](const auto request, auto response) {
                 auto action_id{action_id.fetch_add(1)};
-                auto frame{std::make_shared<cb::types::underlying::tx>()};
+                auto frame{std::make_shared<cb::types::underlying::tx::frame>()};
                 frame->body.action_id        = action_id;
                 frame->body.action_timestamp = cb::utility::get_current_timestamp();
                 frame->body.action_type      = cb::protocol::action_types::volocity;
