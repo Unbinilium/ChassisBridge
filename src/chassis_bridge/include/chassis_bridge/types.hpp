@@ -63,6 +63,9 @@ namespace cb::types {
 
     namespace helper {
         struct publisher {
+            publisher()  = default;
+            ~publisher() = default;
+            
             rclcpp::Publisher<chassis_interfaces::msg::VelocityInfo>::SharedPtr     volocity;
             rclcpp::Publisher<chassis_interfaces::msg::AccelerationInfo>::SharedPtr acceleration;
             rclcpp::Publisher<chassis_interfaces::msg::ActionInfo>::SharedPtr       action;
