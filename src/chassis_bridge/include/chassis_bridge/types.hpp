@@ -60,4 +60,17 @@ namespace cb::types {
         };
 #   pragma pack(pop)
     };
+
+    namespace helper {
+        struct publisher {
+            rclcpp::Publisher<chassis_interfaces::msg::VelocityInfo>::SharedPtr     volocity;
+            rclcpp::Publisher<chassis_interfaces::msg::AccelerationInfo>::SharedPtr acceleration;
+            rclcpp::Publisher<chassis_interfaces::msg::ActionInfo>::SharedPtr       action;
+            rclcpp::Publisher<chassis_interfaces::msg::ChassisInfo>::SharedPtr      chassis;
+        };
+
+        struct service {
+
+        };
+    };
 };
