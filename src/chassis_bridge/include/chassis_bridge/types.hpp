@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <cstdint>
+
+#include <rclcpp/rclcpp.hpp>
 
 #include "chassis_interfaces/msg/velocity_info.hpp"
 #include "chassis_interfaces/msg/acceleration_info.hpp"
