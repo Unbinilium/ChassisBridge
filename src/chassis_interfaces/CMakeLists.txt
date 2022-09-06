@@ -9,15 +9,15 @@ find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 set(msg_files
-  "msg/AccelerationInfo.msg"
   "msg/VelocityInfo.msg"
+  "msg/AccelerationInfo.msg"
   "msg/ActionInfo.msg"
   "msg/ChassisInfo.msg"
 )
 
 set(srv_files
-  "srv/AccelerationControl.srv"
   "srv/VolocityControl.srv"
+  "srv/AccelerationControl.srv"
   "srv/DiffusionControl.srv"
 )
 
