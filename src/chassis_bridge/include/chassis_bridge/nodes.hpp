@@ -22,18 +22,24 @@ namespace cb::nodes {
             std::string&                             node_name,
             cb::container::ts::deque<rx_deque_item>* receive_deque_ptr
         ) : Node(node_name),
+            publisher_request_stop_(false),
             receive_deque_ptr_(receive_deque_ptr) {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                       << "[publishers node] initializing publishers node: " << node_name << std::endl;
             on_publisher_initialize();
         }
-        ~publisher() = default;
+
+        ~publisher() {
+            if (!publisher_thread_.joinable()) publisher_request_stop_ = true;
+            publisher_thread_.join();
+        };
 
     protected:
-        virtual void on_publisher_initialize() {}
+        virtual void on_publisher_initialize() { publisher_thread_ = std::thread([this] { publisher_callback(); }); }
         virtual void publisher_callback() {}
 
+        std::thread                              publisher_thread_;
+        bool                                     publisher_request_stop_;
         cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
     };
-
 };
