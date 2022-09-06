@@ -153,7 +153,9 @@ namespace cb::connection {
             ) : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
                 socket_(io_context),
                 receive_deque_ptr_(receive_deque_ptr),
-                transmit_deque_ptr_(transmit_deque_ptr)  {
+                transmit_deque_ptr_(transmit_deque_ptr) {
+                std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+                          << "[tcp server] spawned tcp connection server thread: " << std::this_thread::get_id() << std::endl;
                 do_accept();
             }
             ~server() = default;

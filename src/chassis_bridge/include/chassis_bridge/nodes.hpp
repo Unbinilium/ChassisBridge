@@ -21,7 +21,7 @@ namespace cb::nodes {
         using tx_deque_item = std::shared_ptr<cb::types::underlying::tx::frame>;
     public:
         bridge(
-            std::string&                             node_name,
+            std::string                              node_name,
             cb::container::ts::deque<rx_deque_item>* receive_deque_ptr,
             cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr
         ) : Node(node_name),
