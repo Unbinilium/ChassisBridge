@@ -155,7 +155,7 @@ namespace cb::connection {
                 transmit_deque_ptr_(transmit_deque_ptr)  {
                 do_accept();
             }
-            ~server = default;
+            ~server() = default;
 
         protected:
             virtual void on_accepting_finished() {
