@@ -72,7 +72,12 @@ namespace cb::types {
         };
 
         struct service {
+            service()  = default;
+            ~service() = default;
 
+            rclcpp::Service<chassis_interfaces::srv::VolocityControl>::SharedPtr     volocity;
+            rclcpp::Service<chassis_interfaces::srv::AccelerationControl>::SharedPtr acceleration;
+            rclcpp::Service<chassis_interfaces::srv::DiffusionControl>::SharedPtr    diffusion;
         };
     };
 };
