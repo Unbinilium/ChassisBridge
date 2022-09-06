@@ -14,8 +14,8 @@
 namespace cb::connection {
     namespace tcp {
         class session : public std::enable_shared_from_this<session> {
-            using rx_deque_item = std::unique_ptr<cb::types::underlying::rx::frame>;
-            using tx_deque_item = std::unique_ptr<cb::types::underlying::tx::frame>;
+            using rx_deque_item = std::shared_ptr<cb::types::underlying::rx::frame>;
+            using tx_deque_item = std::shared_ptr<cb::types::underlying::tx::frame>;
         public:
             session(asio::ip::tcp::socket                    socket,
                     cb::container::ts::deque<rx_deque_item>* receive_deque_ptr,
@@ -57,12 +57,11 @@ namespace cb::connection {
         private:
             void do_read() {
                 auto self(shared_from_this());
-                auto header{std::make_unique<cb::types::underlying::head>()};
-
+                auto header{std::make_shared<cb::types::underlying::head>()};
                 socket_.async_read_some(
                     asio::buffer(reinterpret_cast<void*>(header.get()), sizeof(cb::types::underlying::head)),
                     [this, self, header = std::move(header)](std::error_code ec, std::size_t byte) {
-                        auto rx_frame{std::make_unique<cb::types::underlying::rx::frame>()};
+                        auto rx_frame{std::make_shared<cb::types::underlying::rx::frame>()};
                         if (ec) [[unlikely]] {
                             std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << "[tcp session] read " << byte << " byte header failed: " << ec.message() << std::endl;
@@ -143,8 +142,8 @@ namespace cb::connection {
 
         template <typename T = session>
         class server {
-            using rx_deque_item = std::unique_ptr<cb::types::underlying::rx::frame>;
-            using tx_deque_item = std::unique_ptr<cb::types::underlying::tx::frame>;
+            using rx_deque_item = std::shared_ptr<cb::types::underlying::rx::frame>;
+            using tx_deque_item = std::shared_ptr<cb::types::underlying::tx::frame>;
         public:
             server(asio::io_context&                        io_context,
                    uint16_t                                 port,
