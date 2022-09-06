@@ -17,7 +17,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(chassis_interfaces REQUIRED)
 
@@ -25,7 +24,7 @@ include_directories(include)
 
 add_executable(bridge src/bridge.cpp)
 
-ament_target_dependencies(bridge rclcpp std_msgs chassis_interfaces)
+ament_target_dependencies(bridge rclcpp chassis_interfaces)
 
 install(
   TARGETS bridge
