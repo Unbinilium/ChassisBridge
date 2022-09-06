@@ -17,7 +17,7 @@ namespace cb::utility {
     }
 
     template <typename TupleType>
-    constexpr auto tuple_cast_msg(TupleType&& tuple) {
+    constexpr auto tuple_cast_msg(const TupleType& tuple) {
         if constexpr (std::is_same_v<TupleType, cb::types::underlying::volocity>) {
             auto volocity{chassis_interfaces::msg::VelocityInfo()};
             volocity.move_velocity_x   = tuple.x;
