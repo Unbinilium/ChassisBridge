@@ -39,7 +39,7 @@ namespace cb::types {
                 const head header = cb::protocol::header::receive;
                 data       body;
             };
-        };
+        }
 
         namespace tx {
             struct data {
@@ -57,9 +57,9 @@ namespace cb::types {
             struct heartbeat {
                 const head header = cb::protocol::header::heartbeat;
             };
-        };
+        }
 #   pragma pack(pop)
-    };
+    }
 
     namespace helper {
         struct publisher {
@@ -79,5 +79,5 @@ namespace cb::types {
             rclcpp::Service<chassis_interfaces::srv::AccelerationControl>::SharedPtr acceleration;
             rclcpp::Service<chassis_interfaces::srv::DiffusionControl>::SharedPtr    diffusion;
         };
-    };
-};
+    }
+}

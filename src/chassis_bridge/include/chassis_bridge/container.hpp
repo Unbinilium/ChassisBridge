@@ -59,5 +59,5 @@ namespace cb::container {
             mutable std::condition_variable cv_;
             std::deque<T>                   data_;
         };
-    };
-};
+    }
+}

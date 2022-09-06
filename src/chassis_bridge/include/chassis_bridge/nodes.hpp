@@ -118,4 +118,4 @@ namespace cb::nodes {
         std::thread                              publisher_thread_;
         std::thread                              service_thread_;
     };
-};
+}

@@ -12,4 +12,4 @@ namespace cb::protocol {
         acceleration = 'A',
         diffusion    = 'D'
     };
-};
+}

@@ -183,5 +183,5 @@ namespace cb::connection {
             cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
             cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr_;
         };
-    };
-};
+    }
+}
