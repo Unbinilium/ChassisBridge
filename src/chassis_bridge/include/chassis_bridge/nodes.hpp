@@ -28,7 +28,6 @@ namespace cb::nodes {
         ) : Node(node_name),
             receive_deque_ptr_(receive_deque_ptr),
             transmit_deque_ptr_(transmit_deque_ptr),
-            publisher_request_stop_(false),
             publisher_helper_(cb::types::helper::publisher()) {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                       << "[bridge node] initializing bridge node: " << node_name << std::endl;
@@ -37,8 +36,7 @@ namespace cb::nodes {
         }
 
         ~bridge() {
-            if (!publisher_thread_.joinable()) publisher_request_stop_.store(true);
-            publisher_thread_.join();
+            publisher_thread_.detach();
         }
 
     protected:
@@ -80,13 +78,13 @@ namespace cb::nodes {
         virtual void on_service_initialize() {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                       << "[bridge node] registering service callbacks" << std::endl;
+            
 
         }
 
         cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
         cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr_;
 
-        std::atomic_bool                         publisher_request_stop_;
         cb::types::helper::publisher             publisher_helper_;
 
     private:
