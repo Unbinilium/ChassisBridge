@@ -42,7 +42,7 @@ namespace cb::nodes {
             service_thread_.detach();
         }
 
-        void spin() {
+        void threads_join() {
             publisher_thread_.join();
             service_thread_.join();
         }
