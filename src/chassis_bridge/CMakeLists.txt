@@ -8,7 +8,7 @@ endif()
 add_compile_options(-fconcepts)
 
 if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 17)
+  set(CMAKE_C_STANDARD 11)
 endif()
 
 if(NOT CMAKE_CXX_STANDARD)
