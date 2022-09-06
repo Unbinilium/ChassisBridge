@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <cstdint>
 #include <chrono>
 #include <type_traits>
@@ -24,13 +25,31 @@ namespace cb::utility {
             volocity.move_velocity_y   = tuple.y;
             volocity.rotate_velocity_z = tuple.z;
             return volocity;
-        }
-        if constexpr (std::is_same_v<TupleType, cb::types::underlying::acceleration>) {
+        } else if constexpr (std::is_same_v<TupleType, cb::types::underlying::acceleration>) {
             auto acceleration{chassis_interfaces::msg::AccelerationInfo()};
             acceleration.move_acceleration_x   = tuple.x;
             acceleration.move_acceleration_y   = tuple.y;
             acceleration.rotate_acceleration_z = tuple.z;
             return acceleration;
         }
+    }
+
+    template <typename RequestType>
+    constexpr auto request_to_tuple(const RequestType& request) {
+        auto tuple{cb::types::underlying::axis_tuple};
+        if constexpr (std::is_same_v<RequestType, std::shared_ptr<chassis_interfaces::srv::VolocityControl::Request>>) {
+            tuple.x = request->target_move_volocity_x;
+            tuple.y = request->target_move_volocity_y;
+            tuple.z = request->target_rotate_volocity_z;
+        } else if constexpr (std::is_same_v<RequestType, std::shared_ptr<chassis_interfaces::srv::AccelerationControl::Request>>) {
+            tuple.x = request->target_move_acceleration_x;
+            tuple.y = request->target_move_acceleration_y;
+            tuple.z = request->target_rotate_acceleration_z;
+        } else if constexpr (std::is_same_v<RequestType, std::shared_ptr<chassis_interfaces::srv::DiffusionControl::Request>>) {
+            tuple.x = request->move_distance_x;
+            tuple.y = request->move_distance_y;
+            tuple.z = request->rotate_angle_z;
+        }
+        return tuple;
     }
 };
