@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 #include <type_traits>
 
 #include "chassis_bridge/types.hpp"

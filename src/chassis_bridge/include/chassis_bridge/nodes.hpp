@@ -11,7 +11,6 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include "chassis_bridge/protocol.hpp"
 #include "chassis_bridge/types.hpp"
 #include "chassis_bridge/container.hpp"
 #include "chassis_bridge/utility.hpp"
@@ -94,12 +93,12 @@ namespace cb::nodes {
                 &bridge::service_callback<chassis_interfaces::srv::DiffusionControl::Request, chassis_interfaces::srv::DiffusionControl::Response>,
                 this, std::placeholders::_1, std::placeholders::_2
             ));
-            service_thread_ = std::thread([this] {
+            auto self(shared_from_this());
+            service_thread_ = std::thread([this, self] {
                 std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                           << "[service] spawned service thread: " << std::this_thread::get_id() << std::endl;
                 std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                           << "[service] service thread spin and wait for requests" << std::endl;
-                auto self(shared_from_this());
                 rclcpp::spin(self);
             });
         }

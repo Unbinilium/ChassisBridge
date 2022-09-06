@@ -1,9 +1,9 @@
 #pragma once
 
+#include <deque>
 #include <mutex>
 #include <shared_mutex>
 #include <condition_variable>
-#include <deque>
 #include <utility>
 
 namespace cb::container {
