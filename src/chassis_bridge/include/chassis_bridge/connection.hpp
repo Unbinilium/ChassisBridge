@@ -67,36 +67,32 @@ namespace cb::connection {
                     asio::buffer(reinterpret_cast<void*>(header.get()), sizeof(cb::types::underlying::head)),
                     [this, self, header = std::move(header)](std::error_code ec, std::size_t byte) {
                         auto rx_frame{std::make_shared<cb::types::underlying::rx::frame>()};
-                        if (ec) [[unlikely]] {
+                        [[unlikely]] if (ec) {
                             std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << " [tcp session] read " << byte << " byte header failed: " << ec.message() << std::endl;
                             socket_.close();
                             std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << " [tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
-                            return;
-                        }
-                        if (*header == rx_frame->header) {
+                        } else if (*header == rx_frame->header) {
                             std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << " [tcp session] read " << byte << " byte header: '" << *header << "'" << std::endl;
                             on_reading_header(socket_);
                             socket_.async_read_some(
                                 asio::buffer(reinterpret_cast<void*>(&rx_frame->body), sizeof(cb::types::underlying::rx::data)),
                                 [this, self, rx_frame = std::move(rx_frame)](std::error_code ec, std::size_t byte) {
-                                    if (ec) [[unlikely]] {
+                                    [[unlikely]] if (ec) {
                                         std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                                   << " [tcp session] read " << byte << " byte body failed: "  << ec.message() << std::endl;
                                         socket_.close();
                                         std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                                   << " [tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
-                                        return;
-                                    }
-                                    if (byte == sizeof(cb::types::underlying::rx::data)) {
+                                    } else if (byte == sizeof(cb::types::underlying::rx::data)) {
                                         std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                                 << " [tcp session] read " << byte << " byte body"  << std::endl;
                                         on_reading_body(socket_);
                                         receive_deque_ptr_->push_back(std::move(rx_frame));
-                                    }
-                                    on_reading_finished(socket_);
+                                        on_reading_finished(socket_);
+                                    } else on_reading_finished(socket_);
                             });
                         } else on_reading_finished(socket_);
                 });
