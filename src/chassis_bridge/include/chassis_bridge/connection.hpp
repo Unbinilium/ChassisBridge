@@ -61,26 +61,21 @@ namespace cb::connection {
                             std::cout << cb::utility::get_current_timestamp()
                                       << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
                             socket_.close();
-                        } else if (*header == rx_frame->header) {
-                            std::cout << cb::utility::get_current_timestamp()
-                                      << " [tcp session] read " << byte << " byte header: '" << *header << "'" << std::endl;
-                            socket_.async_read_some(
-                                asio::buffer(reinterpret_cast<void*>(&rx_frame->body), sizeof(cb::types::underlying::rx::data)),
-                                [this, self = std::move(self), rx_frame = std::move(rx_frame)](std::error_code ec, std::size_t byte) {
-                                    [[unlikely]] if (ec) {
-                                        std::cout << cb::utility::get_current_timestamp()
-                                                  << " [tcp session] read " << byte << " byte body failed: "  << ec.message() << std::endl;
-                                        std::cout << cb::utility::get_current_timestamp()
-                                                  << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
-                                        socket_.close();
-                                    } else if (byte == sizeof(cb::types::underlying::rx::data)) {
-                                        std::cout << cb::utility::get_current_timestamp()
-                                                << " [tcp session] read " << byte << " byte body"  << std::endl;
-                                        receive_deque_ptr_->push_back(std::move(rx_frame));
-                                        on_reading_finished(socket_, std::move(self));
-                                    } else on_reading_finished(socket_, std::move(self));
-                            });
-                        } else on_reading_finished(socket_, std::move(self));
+                        } else if (*header == rx_frame->header) socket_.async_read_some(
+                            asio::buffer(reinterpret_cast<void*>(&rx_frame->body), sizeof(cb::types::underlying::rx::data)),
+                            [this, self = std::move(self), rx_frame = std::move(rx_frame)](std::error_code ec, std::size_t byte) {
+                                [[unlikely]] if (ec) {
+                                    std::cout << cb::utility::get_current_timestamp()
+                                              << " [tcp session] read " << byte << " byte body failed: "  << ec.message() << std::endl;
+                                    std::cout << cb::utility::get_current_timestamp()
+                                              << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
+                                    socket_.close();
+                                } else if (byte == sizeof(cb::types::underlying::rx::data)) {
+                                    receive_deque_ptr_->push_back(std::move(rx_frame));
+                                    on_reading_finished(socket_, std::move(self));
+                                } else on_reading_finished(socket_, std::move(self));
+                        });
+                        else on_reading_finished(socket_, std::move(self));
                 });
             }
 
@@ -96,8 +91,6 @@ namespace cb::connection {
                                       << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
                             socket_.close();
                         } else {
-                            std::cout << cb::utility::get_current_timestamp()
-                                      << " [tcp session] write " << byte << " byte frame"  << std::endl;
                             transmit_deque_ptr_->pop_front();
                             on_writing_finished(socket_, std::move(self));
                         }
@@ -138,10 +131,9 @@ namespace cb::connection {
         private:
             void do_accept() {
                 acceptor_.async_accept(socket_, [this](std::error_code ec) {
-                    [[unlikely]] if (ec) {
-                        std::cout << cb::utility::get_current_timestamp()
-                                  << " [tcp server] accept connection failed: " << ec.message() << std::endl;
-                    } else {
+                    [[unlikely]] if (ec) std::cout << cb::utility::get_current_timestamp()
+                                                   << " [tcp server] accept connection failed: " << ec.message() << std::endl;
+                    else {
                         std::cout << cb::utility::get_current_timestamp()
                                   << " [tcp server] accept connection success from: " << socket_.remote_endpoint() << std::endl;
                         std::make_shared<T>(std::move(socket_), receive_deque_ptr_, transmit_deque_ptr_)->start();
