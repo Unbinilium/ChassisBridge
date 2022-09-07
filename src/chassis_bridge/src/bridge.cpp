@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <chrono>
 #include <thread>
 #include <exception>
 #include <iostream>
@@ -11,6 +10,7 @@
 #include "chassis_bridge/container.hpp"
 #include "chassis_bridge/connection.hpp"
 #include "chassis_bridge/nodes.hpp"
+#include "chassis_bridge/utility.hpp"
 
 int main(int argc, char* argv[]) {
     rclcpp::init(argc, argv);
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     cb::container::ts::deque<rx_deque_item> receive_deque;
     cb::container::ts::deque<tx_deque_item> transmit_deque;
 
-    std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+    std::cout << cb::utility::get_current_timestamp() 
               << " [bridge main thread] spawning connection server thread from thread: " << std::this_thread::get_id() << std::endl;
     auto connection_server_thread{std::thread([&] {
         connection_server_start: try {
@@ -33,14 +33,14 @@ int main(int argc, char* argv[]) {
             );
             io_context.run();
         } catch (std::exception& e) {
-            std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+            std::cout << cb::utility::get_current_timestamp() 
                       << " [connection server thread] restarting connection server with exception: " << e.what() << std::endl;
             std::this_thread::yield();
             goto connection_server_start;
         }
     })};
 
-    std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
+    std::cout << cb::utility::get_current_timestamp() 
               << " [bridge main thread] launching bridge node from thread: " << std::this_thread::get_id() << std::endl;
     auto bridge_node_handler_ptr{std::make_shared<cb::nodes::bridge>("bridge", &receive_deque, &transmit_deque)};
 

@@ -8,7 +8,7 @@
 #include "chassis_bridge/types.hpp"
 
 namespace cb::utility {
-    template <typename Type = uint16_t, typename Precision = std::chrono::microseconds>
+    template <typename Type = uint32_t, typename Precision = std::chrono::microseconds>
     constexpr auto get_current_timestamp() {
         return static_cast<Type>(
             std::chrono::duration_cast<Precision>(

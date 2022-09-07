@@ -1,5 +1,5 @@
-int32   receive_timestamp
-int32   measure_timestamp
+uint32  receive_timestamp
+uint32  measure_timestamp
 uint16  current_action_id
 float32 distance_moved_since_prev_action_x
 float32 distance_moved_since_prev_action_y

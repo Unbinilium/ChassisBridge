@@ -16,7 +16,7 @@ Binary format, totally 43 bytes.
 
 - header `char`
 - action_id `uint16_t`
-- timestamp `int32_t`
+- timestamp `uint32_t`
 - volocity
     - x `float32`
     - y `float32`
@@ -34,7 +34,7 @@ Binary format, totally 43 bytes.
 
 - header - single char `S`
 - action_id - current action id
-- timestamp - chassis's unix time, precision microseconds (timestamp = int64_t(unix_time) % int32_t)
+- timestamp - chassis's unix time, precision microseconds (timestamp = int64_t(unix_time) % uint32_t)
 - volocity
     - x - move volocity, unit m/s
     - y - move volocity, unit m/s
@@ -63,7 +63,7 @@ Binary format, totally 20 bytes.
 
 - header `char`
 - action_id `uint16_t`
-- timestamp `int32`
+- timestamp `uint32_t`
 - action_type `char`
 - tuple
     - x `float32`
