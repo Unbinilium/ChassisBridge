@@ -56,10 +56,6 @@ namespace cb::types {
                 const head header = cb::protocol::header::transmit;
                 data       body;
             };
-
-            struct heartbeat {
-                const head header = cb::protocol::header::heartbeat;
-            };
         }
 #   pragma pack(pop)
     }
