@@ -101,7 +101,7 @@ namespace cb::connection {
 
             void do_write() {
                 auto self(shared_from_this());
-                std::async([this, self] {
+                [[maybe_unused]] auto ftr = std::async([this, self] {
                     if (transmit_deque_ptr_->empty()) on_writing_finished(socket_);
                     else asio::async_write(socket_,
                         asio::buffer(reinterpret_cast<void*>(transmit_deque_ptr_->front().get()), sizeof(cb::types::underlying::tx::frame)),
@@ -128,7 +128,7 @@ namespace cb::connection {
                 asio::async_write(socket_,
                     asio::buffer(reinterpret_cast<void*>(&heartbeat), sizeof(cb::types::underlying::tx::heartbeat)),
                     [this, self](std::error_code ec, std::size_t byte) {
-                        if (ec) [[unlikely]] {
+                        [[unlikely]] if (ec) {
                             std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << " [tcp session] write " << byte << " byte heartbeat failed: "  << ec.message() << std::endl;
                             socket_.close();
@@ -172,7 +172,7 @@ namespace cb::connection {
         private:
             void do_accept() {
                 acceptor_.async_accept(socket_, [this](std::error_code ec) {
-                    if (ec) [[unlikely]] {
+                    [[unlikely]] if (ec) {
                         std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                   << " [tcp server] accept connection failed: " << ec.message() << std::endl;
                     } else {
