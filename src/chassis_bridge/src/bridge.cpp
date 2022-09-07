@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
         } catch (std::exception& e) {
             std::cout << std::chrono::system_clock::now().time_since_epoch().count() 
                       << " [connection server thread] restarting connection server with exception: " << e.what() << std::endl;
+            std::this_thread::yield();
             goto connection_server_start;
         }
     })};

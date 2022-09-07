@@ -30,9 +30,12 @@ namespace cb::connection {
             ~session() = default;
 
             void start() {
+                std::cout << "do_read\n";
                 do_read();
-                do_write();
-                do_write_heartbeat();
+                // std::cout << "do_write\n";
+                // do_write();
+                // std::cout << "do_write_heartbeat\n";
+                // do_write_heartbeat();
             }
 
         protected:
@@ -81,19 +84,21 @@ namespace cb::connection {
                                 [this, self, rx_frame = std::move(rx_frame)](std::error_code ec, std::size_t byte) {
                                     if (ec) [[unlikely]] {
                                         std::cout << std::chrono::system_clock::now().time_since_epoch().count()
-                                                  << " [tcp session] read " << byte << " byte header failed: "  << ec.message() << std::endl;
+                                                  << " [tcp session] read " << byte << " byte body failed: "  << ec.message() << std::endl;
                                         socket_.close();
                                         std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                                   << " [tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
                                         return;
                                     }
-                                    std::cout << std::chrono::system_clock::now().time_since_epoch().count()
-                                              << " [tcp session] read " << byte << " byte body"  << std::endl;
-                                    on_reading_body(socket_);
-                                    receive_deque_ptr_->push_back(std::move(rx_frame));
+                                    if (byte == sizeof(cb::types::underlying::rx::data)) {
+                                        std::cout << std::chrono::system_clock::now().time_since_epoch().count()
+                                                << " [tcp session] read " << byte << " byte body"  << std::endl;
+                                        on_reading_body(socket_);
+                                        receive_deque_ptr_->push_back(std::move(rx_frame));
+                                    }
                                     on_reading_finished(socket_);
                             });
-                        }
+                        } else on_reading_finished(socket_);
                 });
             }
 
