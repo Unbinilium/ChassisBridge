@@ -34,7 +34,7 @@ Binary format, totally 43 bytes.
 
 - header - single char `S`
 - action_id - current action id
-- timestamp - chassis's unix time, precision microseconds (timestamp = int64_t(unix_time) % uint32_t)
+- timestamp - chassis's unix time, precision microseconds (timestamp = uint64_t(unix_time) % uint32_t)
 - volocity
     - x - move volocity, unit m/s
     - y - move volocity, unit m/s
@@ -74,7 +74,7 @@ Binary format, totally 20 bytes.
 
 - header - single char `T`
 - action_id - current action id
-- timestamp - computer's unix time, precision microseconds (timestamp = int64_t(unix_time) % int32_t)
+- timestamp - computer's unix time, precision microseconds (timestamp = uint64_t(unix_time) % uint32_t)
 - action_type - single char which specifies the types of the tuple data
     - `V`
         - x - target move volocity, unit m/s
