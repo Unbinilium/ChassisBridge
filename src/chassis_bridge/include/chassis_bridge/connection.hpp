@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <chrono>
+#include <future>
 #include <exception>
 #include <utility>
 #include <iostream>
@@ -99,23 +100,25 @@ namespace cb::connection {
             }
 
             void do_write() {
-                if (transmit_deque_ptr_->empty()) on_writing_finished(socket_);
                 auto self(shared_from_this());
-                asio::async_write(socket_,
-                    asio::buffer(reinterpret_cast<void*>(transmit_deque_ptr_->front().get()), sizeof(cb::types::underlying::tx::frame)),
-                    [this, self](std::error_code ec, std::size_t byte) {
-                        if (ec) [[unlikely]] {
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
-                                      << " [tcp session] write " << byte << " byte frame failed: "  << ec.message() << std::endl;
-                            socket_.close();
-                            std::cout << std::chrono::system_clock::now().time_since_epoch().count()
-                                      << " [tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
-                            return;
-                        }
-                        std::cout << std::chrono::system_clock::now().time_since_epoch().count()
-                                  << " [tcp session] write " << byte << " byte frame"  << std::endl;
-                        transmit_deque_ptr_->pop_front();
-                        on_writing_finished(socket_);
+                std::async([this, self] {
+                    if (transmit_deque_ptr_->empty()) on_writing_finished(socket_);
+                    else asio::async_write(socket_,
+                        asio::buffer(reinterpret_cast<void*>(transmit_deque_ptr_->front().get()), sizeof(cb::types::underlying::tx::frame)),
+                        [this, self](std::error_code ec, std::size_t byte) {
+                            [[unlikely]] if (ec) {
+                                std::cout << std::chrono::system_clock::now().time_since_epoch().count()
+                                          << " [tcp session] write " << byte << " byte frame failed: "  << ec.message() << std::endl;
+                                socket_.close();
+                                std::cout << std::chrono::system_clock::now().time_since_epoch().count()
+                                          << " [tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
+                            } else {
+                                std::cout << std::chrono::system_clock::now().time_since_epoch().count()
+                                          << " [tcp session] write " << byte << " byte frame"  << std::endl;
+                                transmit_deque_ptr_->pop_front();
+                                on_writing_finished(socket_);
+                            }
+                    });
                 });
             }
 
@@ -131,9 +134,7 @@ namespace cb::connection {
                             socket_.close();
                             std::cout << std::chrono::system_clock::now().time_since_epoch().count()
                                       << " [tcp session] session closed from: " << socket_.remote_endpoint() << std::endl;
-                            return;
-                        }
-                        on_heartbeat_finished(socket_);
+                        } else on_heartbeat_finished(socket_);
                 });
             }
 
