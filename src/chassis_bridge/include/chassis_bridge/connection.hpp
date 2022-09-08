@@ -51,7 +51,7 @@ namespace cb::connection {
         private:
             void do_read(std::shared_ptr<session> self) {
                 auto header{std::make_shared<cb::types::underlying::head>()};
-                socket_.async_read_some(
+                asio::async_read(socket_,
                     asio::buffer(reinterpret_cast<void*>(header.get()), sizeof(cb::types::underlying::head)),
                     [this, self = std::move(self), header = std::move(header)](std::error_code ec, std::size_t byte) {
                         auto rx_frame{std::make_shared<cb::types::underlying::rx::frame>()};
@@ -61,7 +61,7 @@ namespace cb::connection {
                             std::cout << cb::utility::get_current_timestamp()
                                       << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
                             socket_.close();
-                        } else if (*header == rx_frame->header) socket_.async_read_some(
+                        } else if (*header == rx_frame->header) asio::async_read(socket_,
                             asio::buffer(reinterpret_cast<void*>(&rx_frame->body), sizeof(cb::types::underlying::rx::data)),
                             [this, self = std::move(self), rx_frame = std::move(rx_frame)](std::error_code ec, std::size_t byte) {
                                 [[unlikely]] if (ec) {
@@ -70,10 +70,10 @@ namespace cb::connection {
                                     std::cout << cb::utility::get_current_timestamp()
                                               << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
                                     socket_.close();
-                                } else if (byte == sizeof(cb::types::underlying::rx::data)) {
+                                } else {
                                     receive_deque_ptr_->push_back(std::move(rx_frame));
                                     on_reading_finished(socket_, std::move(self));
-                                } else on_reading_finished(socket_, std::move(self));
+                                }
                         });
                         else on_reading_finished(socket_, std::move(self));
                 });
@@ -116,7 +116,7 @@ namespace cb::connection {
                 socket_(io_context),
                 receive_deque_ptr_(receive_deque_ptr),
                 transmit_deque_ptr_(transmit_deque_ptr) {
-                std::cout << cb::utility::get_current_timestamp() 
+                std::cout << cb::utility::get_current_timestamp()
                           << " [tcp server] spawned tcp connection server thread: " << std::this_thread::get_id() << std::endl;
                 do_accept();
             }
