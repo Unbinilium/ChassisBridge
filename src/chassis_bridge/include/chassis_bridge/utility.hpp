@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <chrono>
+#include <string>
 #include <cstdint>
 #include <type_traits>
 
@@ -51,5 +52,15 @@ namespace cb::utility {
             tuple.z = request->rotate_angle_z;
         }
         return tuple;
+    }
+
+    template <class ...Classes>
+    constexpr void spin(Classes&&... classes) {
+        (std::forward<decltype(classes)>(classes)->spin(), ...);
+    }
+
+    template <class ...Classes>
+    constexpr void terminate(Classes&&... classes) {
+        (std::forward<decltype(classes)>(classes)->terminate(), ...);
     }
 }

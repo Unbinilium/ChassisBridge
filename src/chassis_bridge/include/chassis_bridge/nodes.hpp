@@ -1,11 +1,12 @@
 #pragma once
 
-#include <atomic>
 #include <memory>
+#include <atomic>
+#include <string>
 #include <chrono>
 #include <thread>
-#include <string>
 #include <utility>
+#include <stop_token>
 #include <functional>
 #include <iostream>
 
@@ -36,15 +37,18 @@ namespace cb::nodes {
             on_service_initialize();
         }
 
-        ~bridge() {
-            rclcpp::shutdown();
-            publisher_thread_.detach();
-            service_thread_.detach();
+        ~bridge() { terminate(); }
+
+        void terminate() {
+            if (publisher_thread_.joinable()) publisher_thread_.request_stop();
+            if (service_thread_.joinable()) service_thread_.request_stop();
+            receive_deque_ptr_->notify_all();
+            transmit_deque_ptr_->notify_all();
         }
 
-        void threads_join() {
-            publisher_thread_.join();
-            service_thread_.join();
+        void spin() {
+            if (publisher_thread_.joinable()) publisher_thread_.join();
+            if (service_thread_.joinable()) service_thread_.join();
         }
 
     protected:
@@ -54,7 +58,7 @@ namespace cb::nodes {
             publisher_helper_.volocity     = create_publisher<chassis_interfaces::msg::VelocityInfo>("volocity_info", 10);
             publisher_helper_.acceleration = create_publisher<chassis_interfaces::msg::AccelerationInfo>("acceleration_info", 10);
             publisher_helper_.action       = create_publisher<chassis_interfaces::msg::ActionInfo>("action_info", 10);   
-            publisher_thread_ = std::thread([this] {
+            publisher_thread_ = std::jthread([this] {
                 std::cout << cb::utility::get_current_timestamp() 
                           << " [publisher] spawned publisher thread: " << std::this_thread::get_id() << std::endl;
                 publisher_callback();
@@ -62,24 +66,24 @@ namespace cb::nodes {
         }
 
         virtual void publisher_callback() {
-            receive_deque_ptr_->wait();
-            auto frame{receive_deque_ptr_->front()};
-            {
-                auto volocity    {cb::utility::msg_from_tuple<chassis_interfaces::msg::VelocityInfo>(frame->body.chassis_volocity)};
-                auto acceleration{cb::utility::msg_from_tuple<chassis_interfaces::msg::AccelerationInfo>(frame->body.chassis_acceleration)};
-                auto action      {chassis_interfaces::msg::ActionInfo()};
-                action.receive_timestamp                  = cb::utility::get_current_timestamp();
-                action.measure_timestamp                  = frame->body.measure_timestamp;
-                action.current_action_id                  = frame->body.current_action_id;
-                action.distance_moved_since_prev_action_x = frame->body.chassis_diffusion.x;
-                action.distance_moved_since_prev_action_x = frame->body.chassis_diffusion.x;
-                action.angle_rotated_since_prev_action_z  = frame->body.chassis_diffusion.z;
-                publisher_helper_.volocity->publish(std::move(volocity));
-                publisher_helper_.acceleration->publish(std::move(acceleration));
-                publisher_helper_.action->publish(std::move(action));
+            while (receive_deque_ptr_->empty()) {
+                receive_deque_ptr_->wait();
+                if (publisher_thread_.get_stop_token().stop_requested()) return;
             }
+            auto frame       {receive_deque_ptr_->front()};
+            auto volocity    {cb::utility::msg_from_tuple<chassis_interfaces::msg::VelocityInfo>(frame->body.chassis_volocity)};
+            auto acceleration{cb::utility::msg_from_tuple<chassis_interfaces::msg::AccelerationInfo>(frame->body.chassis_acceleration)};
+            auto action      {chassis_interfaces::msg::ActionInfo()};
+            action.receive_timestamp                  = cb::utility::get_current_timestamp();
+            action.measure_timestamp                  = frame->body.measure_timestamp;
+            action.current_action_id                  = frame->body.current_action_id;
+            action.distance_moved_since_prev_action_x = frame->body.chassis_diffusion.x;
+            action.distance_moved_since_prev_action_x = frame->body.chassis_diffusion.x;
+            action.angle_rotated_since_prev_action_z  = frame->body.chassis_diffusion.z;
+            publisher_helper_.volocity->publish(std::move(volocity));
+            publisher_helper_.acceleration->publish(std::move(acceleration));
+            publisher_helper_.action->publish(std::move(action));
             receive_deque_ptr_->pop_front();
-            std::this_thread::yield();
             publisher_callback();
         }
 
@@ -98,7 +102,7 @@ namespace cb::nodes {
                 &bridge::service_callback<chassis_interfaces::srv::DiffusionControl::Request, chassis_interfaces::srv::DiffusionControl::Response>,
                 this, std::placeholders::_1, std::placeholders::_2
             ));
-            service_thread_ = std::thread([self = this] {
+            service_thread_ = std::jthread([self = this] {
                 std::cout << cb::utility::get_current_timestamp() 
                           << " [service] spawned service thread: " << std::this_thread::get_id() << std::endl;
                 std::cout << cb::utility::get_current_timestamp() 
@@ -128,7 +132,7 @@ namespace cb::nodes {
         std::atomic<uint16_t>                    action_id_;
 
     private:
-        std::thread                              publisher_thread_;
-        std::thread                              service_thread_;
+        std::jthread                             publisher_thread_;
+        std::jthread                             service_thread_;
     };
 }

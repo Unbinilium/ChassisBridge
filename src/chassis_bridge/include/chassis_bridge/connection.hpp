@@ -2,8 +2,9 @@
 
 #include <memory>
 #include <thread>
-#include <exception>
 #include <utility>
+#include <exception>
+#include <stop_token>
 #include <iostream>
 
 #include <asio.hpp>
@@ -32,18 +33,25 @@ namespace cb::connection {
 
             void start() {
                 auto self{shared_from_this()};
-                std::thread([this, self] { do_read(self); }).detach();
-                std::thread([this, self] { do_write(self); }).detach();
+                std::jthread([this, self] { do_read(self); }).detach();
+                std::jthread([this, self] { do_write(self); }).detach();
+            }
+
+            void terminate() {
+                if (socket_.is_open()) {
+                    socket_.cancel();
+                    socket_.close();
+                }
+                receive_deque_ptr_->notify_all();
+                transmit_deque_ptr_->notify_all();
             }
 
         protected:
             virtual void on_reading_finished(asio::ip::tcp::socket&, std::shared_ptr<session> self) {
-                std::this_thread::yield();
-                do_read(std::move(self));
+                if (socket_.is_open()) do_read(std::move(self));
             }
 
             virtual void on_writing_finished(asio::ip::tcp::socket&, std::shared_ptr<session> self) {
-                std::this_thread::yield();
                 transmit_deque_ptr_->wait();
                 if (socket_.is_open()) do_write(std::move(self));
             }
@@ -60,7 +68,7 @@ namespace cb::connection {
                                       << " [tcp session] read " << byte << " byte header failed: " << ec.message() << std::endl;
                             std::cout << cb::utility::get_current_timestamp()
                                       << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
-                            socket_.close();
+                            terminate();
                         } else if (*header == rx_frame->header) asio::async_read(socket_,
                             asio::buffer(reinterpret_cast<void*>(&rx_frame->body), sizeof(cb::types::underlying::rx::data)),
                             [this, self = std::move(self), rx_frame = std::move(rx_frame)](std::error_code ec, std::size_t byte) {
@@ -69,7 +77,7 @@ namespace cb::connection {
                                               << " [tcp session] read " << byte << " byte body failed: "  << ec.message() << std::endl;
                                     std::cout << cb::utility::get_current_timestamp()
                                               << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
-                                    socket_.close();
+                                    terminate();
                                 } else {
                                     receive_deque_ptr_->push_back(std::move(rx_frame));
                                     on_reading_finished(socket_, std::move(self));
@@ -89,7 +97,7 @@ namespace cb::connection {
                                       << " [tcp session] write " << byte << " byte frame failed: "  << ec.message() << std::endl;
                             std::cout << cb::utility::get_current_timestamp()
                                       << " [tcp session] closing session from: " << socket_.remote_endpoint() << std::endl;
-                            socket_.close();
+                            terminate();
                         } else {
                             transmit_deque_ptr_->pop_front();
                             on_writing_finished(socket_, std::move(self));
@@ -103,29 +111,52 @@ namespace cb::connection {
         };
 
 
-        template <typename T = session>
+        template <class Session = session>
         class server {
             using rx_deque_item = std::shared_ptr<cb::types::underlying::rx::frame>;
             using tx_deque_item = std::shared_ptr<cb::types::underlying::tx::frame>;
         public:
-            server(asio::io_context&                        io_context,
-                   uint16_t                                 port,
+            server(const uint16_t                           port,
                    cb::container::ts::deque<rx_deque_item>* receive_deque_ptr,
                    cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr
-            ) : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
-                socket_(io_context),
+            ) : io_context_({}),
+                acceptor_(io_context_, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
+                socket_(io_context_),
                 receive_deque_ptr_(receive_deque_ptr),
                 transmit_deque_ptr_(transmit_deque_ptr) {
+                server_thread_ = std::jthread([this](std::stop_token st) {
+                    server_start: try {
+                        do_accept();
+                        io_context_.run();
+                    } catch (std::exception& e) {
+                        std::cout << cb::utility::get_current_timestamp() 
+                                  << " [tcp server] restarting connection server with exception: " << e.what() << std::endl;
+                        if (st.stop_requested()) return;
+                        io_context_.reset();
+                        goto server_start;
+                    }
+                });
                 std::cout << cb::utility::get_current_timestamp()
-                          << " [tcp server] spawned tcp connection server thread: " << std::this_thread::get_id() << std::endl;
-                do_accept();
+                          << " [tcp server] spawned tcp connection server thread: " << server_thread_.get_id() << std::endl;
             }
-            ~server() = default;
+
+            ~server(){ terminate(); };
+
+            void terminate() {
+                if (server_thread_.joinable()) server_thread_.request_stop();
+                if (socket_.is_open()) {
+                    socket_.cancel();
+                    socket_.close();
+                }
+                io_context_.stop();
+            }
+
+            void spin() { if (server_thread_.joinable()) server_thread_.join(); }
 
         protected:
             virtual void on_accepting_finished() {
-                std::this_thread::yield();
-                do_accept();
+                if (server_thread_.get_stop_token().stop_requested()) terminate();
+                else do_accept();
             }
 
         private:
@@ -136,14 +167,16 @@ namespace cb::connection {
                     else {
                         std::cout << cb::utility::get_current_timestamp()
                                   << " [tcp server] accept connection success from: " << socket_.remote_endpoint() << std::endl;
-                        std::make_shared<T>(std::move(socket_), receive_deque_ptr_, transmit_deque_ptr_)->start();
+                        std::make_shared<Session>(std::move(socket_), receive_deque_ptr_, transmit_deque_ptr_)->start();
                     }
                     on_accepting_finished();
                 });
             }
 
+            asio::io_context                         io_context_;
             asio::ip::tcp::acceptor                  acceptor_;
             asio::ip::tcp::socket                    socket_;
+            std::jthread                             server_thread_;
             cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
             cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr_;
         };

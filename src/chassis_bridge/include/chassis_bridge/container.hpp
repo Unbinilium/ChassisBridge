@@ -46,12 +46,12 @@ namespace cb::container {
                 return data_.empty();
             }
 
-            void wait() {
-                while (empty()) {
-                    std::unique_lock lock(cv_mutex_);
-                    cv_.wait(lock);
-                }
+            void wait() const {
+                std::unique_lock lock(cv_mutex_);
+                cv_.wait(lock);
             }
+
+            void notify_all() const { cv_.notify_all(); }
 
         private:
             mutable std::shared_mutex       mutex_;

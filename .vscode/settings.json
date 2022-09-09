@@ -72,7 +72,15 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "stop_token": "cpp",
+        "any": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "coroutine": "cpp",
+        "source_location": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/build/chassis_interfaces/chassis_interfaces__py",
     "files.autoSave": "onFocusChange",
