@@ -46,9 +46,10 @@ namespace cb::nodes {
             transmit_deque_ptr_->notify_all();
         }
 
-        void spin() {
+        bool spin() {
             if (publisher_thread_.joinable()) publisher_thread_.join();
             if (service_thread_.joinable()) service_thread_.join();
+            return false;
         }
 
     protected:
@@ -102,12 +103,13 @@ namespace cb::nodes {
                 &bridge::service_callback<chassis_interfaces::srv::DiffusionControl::Request, chassis_interfaces::srv::DiffusionControl::Response>,
                 this, std::placeholders::_1, std::placeholders::_2
             ));
-            service_thread_ = std::jthread([self = this] {
+            service_thread_ = std::jthread([this, self = SharedPtr(this)] {
                 std::cout << cb::utility::get_current_timestamp() 
                           << " [service] spawned service thread: " << std::this_thread::get_id() << std::endl;
                 std::cout << cb::utility::get_current_timestamp() 
                           << " [service] service thread spin and wait for requests" << std::endl;
-                rclcpp::spin(SharedPtr(self));
+                rclcpp::on_shutdown([this] { terminate(); });
+                rclcpp::spin(self);
             });
         }
 
@@ -125,10 +127,8 @@ namespace cb::nodes {
 
         cb::container::ts::deque<rx_deque_item>* receive_deque_ptr_;
         cb::container::ts::deque<tx_deque_item>* transmit_deque_ptr_;
-
         cb::types::helper::publisher             publisher_helper_;
         cb::types::helper::service               service_helper_;
-
         std::atomic<uint16_t>                    action_id_;
 
     private:

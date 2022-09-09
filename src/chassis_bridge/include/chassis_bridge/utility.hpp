@@ -55,8 +55,9 @@ namespace cb::utility {
     }
 
     template <class ...Classes>
-    constexpr void spin(Classes&&... classes) {
-        (std::forward<decltype(classes)>(classes)->spin(), ...);
+    constexpr bool spin(Classes&&... classes) {
+        if ((!std::forward<decltype(classes)>(classes)->spin() || ...)) {}
+        return false;
     }
 
     template <class ...Classes>

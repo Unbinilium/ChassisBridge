@@ -151,7 +151,10 @@ namespace cb::connection {
                 io_context_.stop();
             }
 
-            void spin() { if (server_thread_.joinable()) server_thread_.join(); }
+            bool spin() {
+                if (server_thread_.joinable()) server_thread_.join();
+                return false;
+            }
 
         protected:
             virtual void on_accepting_finished() {
