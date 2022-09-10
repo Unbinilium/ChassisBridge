@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     auto bridge_node_handler_ptr{std::make_shared<cb::nodes::bridge>("bridge", &receive_deque, &transmit_deque)};
 
     rclcpp::on_shutdown([&] { cb::utility::terminate(connection_server_thread_handler_ptr, bridge_node_handler_ptr); });
-    if (!cb::utility::spin(connection_server_thread_handler_ptr, bridge_node_handler_ptr)) rclcpp::shutdown();;
+    if (!cb::utility::spin(connection_server_thread_handler_ptr, bridge_node_handler_ptr)) rclcpp::shutdown();
 
     return 0;
 }
