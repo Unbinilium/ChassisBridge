@@ -138,6 +138,8 @@ namespace cb::connection {
                 });
                 std::cout << cb::utility::get_current_timestamp()
                           << " [tcp server] spawned tcp connection server thread: " << server_thread_.get_id() << std::endl;
+                std::cout << cb::utility::get_current_timestamp()
+                          << " [tcp server] server lintening on: " << acceptor_.local_endpoint() << std::endl;
             }
 
             ~server(){ terminate(); };
